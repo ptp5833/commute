@@ -32,9 +32,10 @@ const buildStatusFromRecords = (records) => {
   const statusMap = {};
   for (const record of records) {
     if (!statusMap[record.name]) {
-      statusMap[record.name] = { name: record.name, location: record.location };
+      statusMap[record.name] = { name: record.name, location: record.location, events: [] };
     }
     statusMap[record.name].location = record.location;
+    statusMap[record.name].events.push(record);
     if (record.type === 'checkin') {
       statusMap[record.name].checkin = record.time;
     } else if (record.type === 'checkout') {
