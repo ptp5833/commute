@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { defaultLocations } from '../constants';
 import LocationSelector from './LocationSelector';
 import TeamStatus from './TeamStatus';
@@ -26,6 +26,22 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   const { checkin, checkout } = nameConfirmed
     ? getUserTodayRecord(name)
     : { checkin: undefined, checkout: undefined };
+
+  const openHistory = () => {
+    window.history.pushState({ page: 'history' }, '');
+    setShowHistory(true);
+  };
+
+  const closeHistory = () => {
+    setShowHistory(false);
+  };
+
+  useEffect(() => {
+    if (!showHistory) return;
+    const handlePopState = () => setShowHistory(false);
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [showHistory]);
 
   const showFlash = (msg) => {
     setFlashMsg(msg);
@@ -105,7 +121,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   };
 
   if (showHistory) {
-    return <AttendanceHistory onClose={() => setShowHistory(false)} />;
+    return <AttendanceHistory onClose={closeHistory} />;
   }
 
   if (!nameConfirmed) {
@@ -246,7 +262,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       </div>
 
       <div className="history-btn-wrap">
-        <button className="btn-history" onClick={() => setShowHistory(true)}>
+        <button className="btn-history" onClick={openHistory}>
           📅 근태 History
         </button>
       </div>
