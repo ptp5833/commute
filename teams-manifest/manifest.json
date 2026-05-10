@@ -3,7 +3,6 @@
   "manifestVersion": "1.17",
   "version": "1.0.0",
   "id": "d4e5f6a7-b8c9-4012-def3-456789abcdef",
-  "packageName": "com.ligdna.commute",
   "developer": {
     "name": "LG DX팀",
     "websiteUrl": "https://commute-virid-two.vercel.app",
@@ -32,7 +31,6 @@
       "scopes": ["personal"]
     }
   ],
-  "permissions": ["identity"],
   "validDomains": [
     "commute-virid-two.vercel.app"
   ]

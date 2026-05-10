@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { defaultLocations } from '../constants';
 import LocationSelector from './LocationSelector';
 import TeamStatus from './TeamStatus';
+import AttendanceHistory from './AttendanceHistory';
 import { getUserTodayRecord, saveRecord } from '../utils/storage';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
 import { sendAttendance, buildCheckinMessage, buildCheckoutMessage } from '../utils/webhook';
@@ -16,6 +17,7 @@ export default function AttendanceForm({ msalName, onLogout }) {
   const [loading, setLoading] = useState(false);
   const [flashMsg, setFlashMsg] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [showHistory, setShowHistory] = useState(false);
 
   const { checkin, checkout } = nameConfirmed
     ? getUserTodayRecord(name)
@@ -168,7 +170,15 @@ export default function AttendanceForm({ msalName, onLogout }) {
         </div>
       </div>
 
+      <div className="history-btn-wrap">
+        <button className="btn-history" onClick={() => setShowHistory(true)}>
+          📅 근태 History
+        </button>
+      </div>
+
       <TeamStatus refreshKey={refreshKey} />
+
+      {showHistory && <AttendanceHistory onClose={() => setShowHistory(false)} />}
     </div>
   );
 }

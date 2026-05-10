@@ -28,10 +28,8 @@ export const getUserTodayRecord = (name) => {
   return { checkin, checkout };
 };
 
-export const getTeamStatus = () => {
-  const records = getTodayRecords();
+const buildStatusFromRecords = (records) => {
   const statusMap = {};
-
   for (const record of records) {
     if (!statusMap[record.name]) {
       statusMap[record.name] = { name: record.name, location: record.location };
@@ -43,11 +41,39 @@ export const getTeamStatus = () => {
       statusMap[record.name].workTime = record.workTime;
     }
   }
-
   return Object.values(statusMap).sort((a, b) => {
     if (a.checkin && b.checkin) return a.checkin.localeCompare(b.checkin);
     if (a.checkin) return -1;
     if (b.checkin) return 1;
     return a.name.localeCompare(b.name);
   });
+};
+
+export const getTeamStatus = () => buildStatusFromRecords(getTodayRecords());
+
+export const getHistoryDates = () => {
+  const dates = [];
+  const today = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${day}`;
+    if (localStorage.getItem(`attendance_${dateStr}`)) {
+      dates.push(dateStr);
+    }
+  }
+  return dates;
+};
+
+export const getTeamStatusForDate = (dateStr) => {
+  try {
+    const data = localStorage.getItem(`attendance_${dateStr}`);
+    const records = data ? JSON.parse(data) : [];
+    return buildStatusFromRecords(records);
+  } catch {
+    return [];
+  }
 };
