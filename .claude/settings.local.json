@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//usr/lib/cargo/bin/coreutils/**)",
+      "Bash(python3 *)",
+      "Bash(node *)"
+    ]
+  }
+}

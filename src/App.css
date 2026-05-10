@@ -1,0 +1,578 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f0f2f5;
+  color: #1a1a2e;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Splash / Loading ── */
+.splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1rem;
+  color: #666;
+}
+
+.splash-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #0078d4;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Login ── */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-icon {
+  font-size: 3rem;
+  margin-bottom: 1.25rem;
+}
+
+.login-card h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.login-card p {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 0.95rem;
+}
+
+.btn-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.875rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-login:hover {
+  background: #106ebe;
+}
+
+.btn-login:active {
+  transform: scale(0.98);
+}
+
+/* ── App Layout ── */
+.app-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+/* ── Header ── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 0 0.75rem;
+}
+
+.header-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.btn-logout {
+  background: none;
+  border: 1.5px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: #777;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  border-color: #aaa;
+  color: #333;
+}
+
+/* ── Card ── */
+.card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+  margin-bottom: 1rem;
+}
+
+/* ── Attendance Card ── */
+.attendance-card {
+  margin-top: 0.5rem;
+}
+
+.user-info {
+  margin-bottom: 1.25rem;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 0.82rem;
+  color: #888;
+  width: 3rem;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+/* ── Location Selector ── */
+.location-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.location-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.btn-edit {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0.2rem 0.4rem;
+  opacity: 0.6;
+  border-radius: 6px;
+  transition: opacity 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.btn-edit:hover {
+  opacity: 1;
+  background: #f0f0f0;
+}
+
+.location-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.location-editor-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.location-select {
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+  flex: 1;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.location-select:focus {
+  border-color: #0078d4;
+}
+
+.btn-cancel-edit {
+  background: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.625rem;
+  cursor: pointer;
+  color: #666;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.btn-cancel-edit:hover {
+  background: #e0e0e0;
+}
+
+.custom-input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.custom-input {
+  border: 1.5px solid #ddd;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  flex: 1;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.custom-input:focus {
+  border-color: #0078d4;
+}
+
+.btn-confirm-input {
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.btn-confirm-input:hover {
+  background: #106ebe;
+}
+
+/* ── Record Info ── */
+.record-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: #f8f9fb;
+  border-radius: 12px;
+  padding: 0.875rem 1.125rem;
+  margin-bottom: 1.125rem;
+  flex-wrap: wrap;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.record-label {
+  font-size: 0.78rem;
+  color: #999;
+  font-weight: 500;
+}
+
+.record-val {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.record-work {
+  color: #0078d4;
+}
+
+.record-divider {
+  width: 1px;
+  height: 1rem;
+  background: #ddd;
+}
+
+/* ── Flash message ── */
+.flash-message {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #0078d4;
+  background: #e6f2fb;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Attendance Buttons ── */
+.button-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.btn-attendance {
+  border: none;
+  border-radius: 14px;
+  padding: 1.5rem 1rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.btn-checkin {
+  background: linear-gradient(135deg, #00c97b, #00a85f);
+  color: #fff;
+}
+
+.btn-checkin:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 185, 107, 0.35);
+}
+
+.btn-checkout {
+  background: linear-gradient(135deg, #ff7043, #f44336);
+  color: #fff;
+}
+
+.btn-checkout:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+}
+
+.btn-done {
+  background: linear-gradient(135deg, #c8c8c8, #b0b0b0) !important;
+  box-shadow: none !important;
+}
+
+.btn-attendance:disabled {
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Name Setup ── */
+.name-setup-card {
+  max-width: 420px;
+  margin: 4rem auto 0;
+  text-align: center;
+}
+
+.name-setup-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.name-setup-card h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.name-setup-card p {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+.name-input {
+  width: 100%;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  margin-bottom: 1rem;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.name-input:focus {
+  border-color: #0078d4;
+}
+
+.name-setup-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.btn-confirm-name {
+  background: #0078d4;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-confirm-name:hover:not(:disabled) {
+  background: #106ebe;
+}
+
+.btn-confirm-name:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-confirm-name:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ── Team Status ── */
+.team-status {
+  background: #fff;
+  border-radius: 18px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+}
+
+.team-status h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1a1a2e;
+}
+
+.empty-msg {
+  color: #aaa;
+  text-align: center;
+  padding: 1.25rem 0;
+  font-size: 0.9rem;
+}
+
+.status-table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.status-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.status-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+  color: #aaa;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
+.status-table td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid #f8f8f8;
+}
+
+.status-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.status-table tbody tr:hover td {
+  background: #fafbfc;
+}
+
+.td-name {
+  font-weight: 600;
+}
+
+.td-time {
+  font-variant-numeric: tabular-nums;
+  color: #444;
+}
+
+.td-work {
+  color: #0078d4;
+  font-weight: 500;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .card {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+
+  .btn-attendance {
+    font-size: 1.2rem;
+    padding: 1.25rem 0.75rem;
+    border-radius: 12px;
+  }
+
+  .status-table {
+    font-size: 0.8rem;
+  }
+
+  .status-table th,
+  .status-table td {
+    padding: 0.5rem 0.5rem;
+  }
+
+  .record-info {
+    gap: 0.5rem;
+  }
+}
