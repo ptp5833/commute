@@ -18,3 +18,6 @@ export const buildCheckinMessage = (name, location, time) =>
 
 export const buildCheckoutMessage = (name, location, time, workTime) =>
   `🏁 퇴근 | ${name} | ${location} | ${time} | 근무 ${workTime}`;
+
+export const buildMoveMessage = (name, fromLocation, toLocation, time) =>
+  `🚗 이동 | ${name} | ${fromLocation} → ${toLocation} | ${time}`;

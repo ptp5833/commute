@@ -5,7 +5,8 @@ import TeamStatus from './TeamStatus';
 import AttendanceHistory from './AttendanceHistory';
 import { getUserTodayRecord, saveRecord } from '../utils/storage';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
-import { sendAttendance, buildCheckinMessage, buildCheckoutMessage } from '../utils/webhook';
+import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage } from '../utils/webhook';
+import { locationOptions } from '../constants';
 
 export default function AttendanceForm({ msalName, onLogout }) {
   const isKnownName = msalName in defaultLocations;
@@ -18,6 +19,9 @@ export default function AttendanceForm({ msalName, onLogout }) {
   const [flashMsg, setFlashMsg] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
   const [showHistory, setShowHistory] = useState(false);
+  const [showMovePanel, setShowMovePanel] = useState(false);
+  const [moveLocation, setMoveLocation] = useState('');
+  const [moveCustom, setMoveCustom] = useState('');
 
   const { checkin, checkout } = nameConfirmed
     ? getUserTodayRecord(name)
@@ -57,6 +61,34 @@ export default function AttendanceForm({ msalName, onLogout }) {
       saveRecord({ name, location, type: 'checkout', time, workTime, timestamp: Date.now() });
       setRefreshKey((k) => k + 1);
       showFlash(`🏁 퇴근 완료! 근무 ${workTime}`);
+    } catch (err) {
+      showFlash(`전송 실패: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openMovePanel = () => {
+    setMoveLocation(location);
+    setMoveCustom('');
+    setShowMovePanel(true);
+  };
+
+  const handleMove = async () => {
+    const dest = moveLocation === '기타(직접입력)' ? moveCustom.trim() : moveLocation;
+    if (!dest) return showFlash('이동할 지역을 선택해주세요.');
+    if (dest === location) return showFlash('현재 지역과 동일합니다.');
+    const fromLocation = location;
+    setLoading(true);
+    try {
+      const time = getCurrentTime();
+      const msg = buildMoveMessage(name, fromLocation, dest, time);
+      await sendAttendance(msg);
+      saveRecord({ name, location: dest, previousLocation: fromLocation, type: 'move', time, timestamp: Date.now() });
+      setLocation(dest);
+      setShowMovePanel(false);
+      setRefreshKey((k) => k + 1);
+      showFlash(`🚗 이동 완료! ${fromLocation} → ${dest}`);
     } catch (err) {
       showFlash(`전송 실패: ${err.message}`);
     } finally {
@@ -161,6 +193,13 @@ export default function AttendanceForm({ msalName, onLogout }) {
             {loading && !checkin ? '⏳' : checkin ? '✅ 출근완료' : '출근'}
           </button>
           <button
+            className="btn-attendance btn-move"
+            onClick={openMovePanel}
+            disabled={loading || !checkin}
+          >
+            🚗 이동
+          </button>
+          <button
             className={`btn-attendance btn-checkout${checkout ? ' btn-done' : ''}`}
             onClick={handleCheckout}
             disabled={loading || !checkin || !!checkout}
@@ -168,6 +207,40 @@ export default function AttendanceForm({ msalName, onLogout }) {
             {loading && checkin && !checkout ? '⏳' : checkout ? '🏁 퇴근완료' : '퇴근'}
           </button>
         </div>
+
+        {showMovePanel && (
+          <div className="move-panel">
+            <p className="move-panel-label">이동할 지역 선택</p>
+            <select
+              value={moveLocation}
+              onChange={(e) => setMoveLocation(e.target.value)}
+              className="location-select"
+            >
+              {locationOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+            {moveLocation === '기타(직접입력)' && (
+              <input
+                type="text"
+                value={moveCustom}
+                onChange={(e) => setMoveCustom(e.target.value)}
+                placeholder="지역명 입력"
+                className="custom-input"
+                onKeyDown={(e) => e.key === 'Enter' && handleMove()}
+                autoFocus
+              />
+            )}
+            <div className="move-panel-actions">
+              <button className="btn-move-confirm" onClick={handleMove} disabled={loading}>
+                {loading ? '⏳' : '확인'}
+              </button>
+              <button className="btn-move-cancel" onClick={() => setShowMovePanel(false)}>
+                취소
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="history-btn-wrap">

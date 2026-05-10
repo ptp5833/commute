@@ -34,9 +34,10 @@ const buildStatusFromRecords = (records) => {
     if (!statusMap[record.name]) {
       statusMap[record.name] = { name: record.name, location: record.location };
     }
+    statusMap[record.name].location = record.location;
     if (record.type === 'checkin') {
       statusMap[record.name].checkin = record.time;
-    } else {
+    } else if (record.type === 'checkout') {
       statusMap[record.name].checkout = record.time;
       statusMap[record.name].workTime = record.workTime;
     }
