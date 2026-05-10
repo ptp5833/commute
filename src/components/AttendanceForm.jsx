@@ -104,16 +104,17 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
     onNameConfirmed?.(trimmed, location);
   };
 
+  if (showHistory) {
+    return <AttendanceHistory onClose={() => setShowHistory(false)} />;
+  }
+
   if (!nameConfirmed) {
     return (
       <div className="app-container">
         <div className="card name-setup-card">
           <div className="name-setup-icon">👤</div>
-          <h2>이름 확인</h2>
-          <p>
-            Microsoft 계정 이름(<strong>{msalName || '알 수 없음'}</strong>)이<br />
-            팀원 목록에 없습니다. 이름을 직접 입력해주세요.
-          </p>
+          <h2>이름 입력</h2>
+          <p>이름을 입력해주세요</p>
           <input
             type="text"
             value={nameInput}
@@ -251,8 +252,6 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       </div>
 
       <TeamStatus refreshKey={refreshKey} />
-
-      {showHistory && <AttendanceHistory onClose={() => setShowHistory(false)} />}
     </div>
   );
 }
