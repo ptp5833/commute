@@ -1,0 +1,39 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "d4e5f6a7-b8c9-4012-def3-456789abcdef",
+  "packageName": "com.ligdna.commute",
+  "developer": {
+    "name": "LG DX팀",
+    "websiteUrl": "https://commute-virid-two.vercel.app",
+    "privacyUrl": "https://commute-virid-two.vercel.app",
+    "termsOfUseUrl": "https://commute-virid-two.vercel.app"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "근태 체크",
+    "full": "LG DX팀 근태 체크"
+  },
+  "description": {
+    "short": "출퇴근 체크 앱",
+    "full": "팀원 출퇴근 기록 및 당일 현황 조회"
+  },
+  "accentColor": "#0078d4",
+  "staticTabs": [
+    {
+      "entityId": "commute-check",
+      "name": "근태 체크",
+      "contentUrl": "https://commute-virid-two.vercel.app",
+      "websiteUrl": "https://commute-virid-two.vercel.app",
+      "scopes": ["personal"]
+    }
+  ],
+  "permissions": ["identity"],
+  "validDomains": [
+    "commute-virid-two.vercel.app"
+  ]
+}

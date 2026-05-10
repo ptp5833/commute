@@ -108,7 +108,9 @@ export default function AttendanceForm({ msalName, onLogout }) {
     <div className="app-container">
       <header className="app-header">
         <span className="header-title">근태 체크</span>
-        <button className="btn-logout" onClick={onLogout}>로그아웃</button>
+        {onLogout && (
+          <button className="btn-logout" onClick={onLogout}>로그아웃</button>
+        )}
       </header>
 
       <div className="card attendance-card">
