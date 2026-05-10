@@ -8,12 +8,12 @@ import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
 import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage } from '../utils/webhook';
 import { locationOptions } from '../constants';
 
-export default function AttendanceForm({ msalName, onLogout }) {
-  const isKnownName = msalName in defaultLocations;
+export default function AttendanceForm({ msalName, onLogout, initialNameConfirmed, defaultLocation, onNameConfirmed }) {
+  const isKnownName = msalName in defaultLocations || !!initialNameConfirmed;
 
   const [name, setName] = useState(isKnownName ? msalName : '');
   const [nameConfirmed, setNameConfirmed] = useState(isKnownName);
-  const [location, setLocation] = useState(defaultLocations[msalName] || '2판연');
+  const [location, setLocation] = useState(defaultLocation || defaultLocations[msalName] || '2판연');
   const [nameInput, setNameInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [flashMsg, setFlashMsg] = useState('');
@@ -101,6 +101,7 @@ export default function AttendanceForm({ msalName, onLogout }) {
     if (!trimmed) return;
     setName(trimmed);
     setNameConfirmed(true);
+    onNameConfirmed?.(trimmed, location);
   };
 
   if (!nameConfirmed) {

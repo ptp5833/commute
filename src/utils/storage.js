@@ -70,6 +70,20 @@ export const getHistoryDates = () => {
   return dates;
 };
 
+const MANUAL_USER_KEY = 'attendance_manual_user';
+export const getManualUser = () => {
+  try {
+    const d = localStorage.getItem(MANUAL_USER_KEY);
+    return d ? JSON.parse(d) : null;
+  } catch { return null; }
+};
+export const saveManualUser = (name, location) => {
+  localStorage.setItem(MANUAL_USER_KEY, JSON.stringify({ name, location }));
+};
+export const clearManualUser = () => {
+  localStorage.removeItem(MANUAL_USER_KEY);
+};
+
 export const getTeamStatusForDate = (dateStr) => {
   try {
     const data = localStorage.getItem(`attendance_${dateStr}`);

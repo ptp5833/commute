@@ -1,7 +1,7 @@
 import { useMsal } from '@azure/msal-react';
 import { loginRequest } from '../utils/msalConfig';
 
-export default function Login() {
+export default function Login({ onManualMode }) {
   const { instance } = useMsal();
 
   const handleLogin = async () => {
@@ -27,6 +27,11 @@ export default function Login() {
           </svg>
           Microsoft로 로그인
         </button>
+        <div className="login-divider"><span>또는</span></div>
+        <button className="btn-manual" onClick={onManualMode}>
+          이름으로 시작
+        </button>
+        <p className="login-hint">Teams 모바일에서 로그인이 안 될 때 사용하세요</p>
       </div>
     </div>
   );

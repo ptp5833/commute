@@ -4,7 +4,10 @@ let _inTeams = false;
 export const initTeams = async () => {
   try {
     const sdk = await import('@microsoft/teams-js');
-    await sdk.app.initialize();
+    await Promise.race([
+      sdk.app.initialize(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000)),
+    ]);
     _sdk = sdk;
     _inTeams = true;
     return true;
