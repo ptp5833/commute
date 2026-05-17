@@ -938,7 +938,8 @@ body {
 .date-tab-active {
   background: #0078d4;
   border-color: #0078d4;
-  color: #fff;
+  color: #fff !important;
+  font-weight: 700;
 }
 
 .date-tab-today {
@@ -1011,7 +1012,7 @@ body {
   background: #fafafa;
   border: 1.5px solid #e0e0e0;
   border-radius: 14px;
-  padding: 1rem 1.125rem;
+  padding: 1rem 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
