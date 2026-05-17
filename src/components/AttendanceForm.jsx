@@ -150,7 +150,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       await sendAttendance(msg);
       setShowSchedulePanel(false);
       setRefreshKey((k) => k + 1);
-      const label = { vacation: '휴가', business_trip: '출장', field_work: '외근' }[scheduleType];
+      const label = { vacation: '휴가', business_trip: '출장', field_work: '외근', education: '교육' }[scheduleType];
       showFlash(`📋 ${label} 일정이 등록되었습니다.`);
     } catch (err) {
       showFlash(`등록 실패: ${err.message}`);
@@ -337,6 +337,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                 <option value="vacation">🌴 휴가</option>
                 <option value="business_trip">✈️ 출장</option>
                 <option value="field_work">🏃 외근</option>
+                <option value="education">📚 교육</option>
               </select>
             </div>
 
@@ -364,6 +365,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                   <option>리프레쉬</option>
                   <option>해외문화체험</option>
                   <option>건강검진</option>
+                  <option>교육</option>
                 </select>
               </div>
             )}
@@ -376,7 +378,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                   className="custom-input"
                   value={scheduleLocation}
                   onChange={(e) => setScheduleLocation(e.target.value)}
-                  placeholder="장소를 입력하세요"
+                  placeholder={scheduleType === 'education' ? '교육 장소를 입력하세요' : '장소를 입력하세요'}
                   onKeyDown={(e) => e.key === 'Enter' && handleScheduleSave()}
                 />
               </div>

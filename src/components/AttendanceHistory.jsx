@@ -6,6 +6,7 @@ import PersonCard from './PersonCard';
 const SCHEDULE_CONFIG = {
   business_trip: { icon: '✈️', label: '출장', color: '#6a1b9a', bg: '#f3e5f5' },
   field_work:    { icon: '🏃', label: '외근', color: '#e65100', bg: '#fff3e0' },
+  education:     { icon: '📚', label: '교육', color: '#1565c0', bg: '#e3f2fd' },
   vacation:      { icon: '🌴', label: '휴가', color: '#00897b', bg: '#e0f2f1' },
 };
 
@@ -56,6 +57,7 @@ export default function AttendanceHistory({ onClose }) {
   const grouped = {
     business_trip: schedules.filter((s) => s.type === 'business_trip'),
     field_work: schedules.filter((s) => s.type === 'field_work'),
+    education: schedules.filter((s) => s.type === 'education'),
     vacation: schedules.filter((s) => s.type === 'vacation'),
   };
   const hasAny = status.length > 0 || schedules.length > 0;
@@ -108,7 +110,7 @@ export default function AttendanceHistory({ onClose }) {
               </div>
             )}
 
-            {['business_trip', 'field_work', 'vacation'].map((type) => {
+            {['business_trip', 'field_work', 'education', 'vacation'].map((type) => {
               const items = grouped[type];
               if (items.length === 0) return null;
               const { icon, label, color, bg } = SCHEDULE_CONFIG[type];
