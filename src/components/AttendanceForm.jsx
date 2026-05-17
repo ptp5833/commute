@@ -3,7 +3,8 @@ import { defaultLocations } from '../constants';
 import LocationSelector from './LocationSelector';
 import TeamStatus from './TeamStatus';
 import AttendanceHistory from './AttendanceHistory';
-import { getUserTodayRecord, saveRecord } from '../utils/storage';
+import { getUserTodayRecord, saveRecord, getTodayDateStr } from '../utils/storage';
+import { saveRecordToServer } from '../utils/api';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
 import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage } from '../utils/webhook';
 import { locationOptions } from '../constants';
@@ -55,7 +56,9 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       const time = getCurrentTime();
       const msg = buildCheckinMessage(name, location, time);
       await sendAttendance(msg);
-      saveRecord({ name, location, type: 'checkin', time, timestamp: Date.now() });
+      const record = { name, location, type: 'checkin', time, date: getTodayDateStr(), timestamp: Date.now() };
+      saveRecord(record);
+      saveRecordToServer(record);
       setRefreshKey((k) => k + 1);
       showFlash(`✅ 출근 완료! (${time})`);
     } catch (err) {
@@ -74,7 +77,9 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       const workTime = calcWorkTime(checkin.time, time);
       const msg = buildCheckoutMessage(name, location, time, workTime);
       await sendAttendance(msg);
-      saveRecord({ name, location, type: 'checkout', time, workTime, timestamp: Date.now() });
+      const record = { name, location, type: 'checkout', time, workTime, date: getTodayDateStr(), timestamp: Date.now() };
+      saveRecord(record);
+      saveRecordToServer(record);
       setRefreshKey((k) => k + 1);
       showFlash(`🏁 퇴근 완료! 근무 ${workTime}`);
     } catch (err) {
@@ -100,7 +105,9 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       const time = getCurrentTime();
       const msg = buildMoveMessage(name, fromLocation, dest, time);
       await sendAttendance(msg);
-      saveRecord({ name, location: dest, previousLocation: fromLocation, type: 'move', time, timestamp: Date.now() });
+      const record = { name, location: dest, previousLocation: fromLocation, type: 'move', time, date: getTodayDateStr(), timestamp: Date.now() };
+      saveRecord(record);
+      saveRecordToServer(record);
       setLocation(dest);
       setShowMovePanel(false);
       setRefreshKey((k) => k + 1);

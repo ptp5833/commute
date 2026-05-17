@@ -1,10 +1,12 @@
-const getDateKey = () => {
+export const getTodayDateStr = () => {
   const today = new Date();
   const y = today.getFullYear();
   const m = String(today.getMonth() + 1).padStart(2, '0');
   const d = String(today.getDate()).padStart(2, '0');
-  return `attendance_${y}-${m}-${d}`;
+  return `${y}-${m}-${d}`;
 };
+
+const getDateKey = () => `attendance_${getTodayDateStr()}`;
 
 export const getTodayRecords = () => {
   try {
@@ -28,7 +30,7 @@ export const getUserTodayRecord = (name) => {
   return { checkin, checkout };
 };
 
-const buildStatusFromRecords = (records) => {
+export const buildStatusFromRecords = (records) => {
   const statusMap = {};
   for (const record of records) {
     if (!statusMap[record.name]) {

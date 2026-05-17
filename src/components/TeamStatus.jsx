@@ -1,8 +1,17 @@
-import { getTeamStatus } from '../utils/storage';
+import { useState, useEffect } from 'react';
+import { buildStatusFromRecords, getTodayDateStr } from '../utils/storage';
+import { getRecordsForDate } from '../utils/api';
 import PersonCard from './PersonCard';
 
 export default function TeamStatus({ refreshKey }) {
-  const status = getTeamStatus();
+  const [status, setStatus] = useState([]);
+
+  useEffect(() => {
+    getRecordsForDate(getTodayDateStr()).then((records) => {
+      setStatus(buildStatusFromRecords(records));
+    });
+  }, [refreshKey]);
+
   const checkinCount = status.filter((p) => p.checkin).length;
 
   return (

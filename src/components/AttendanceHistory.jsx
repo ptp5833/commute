@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { getHistoryDates, getTeamStatusForDate } from '../utils/storage';
+import { useState, useEffect } from 'react';
+import { buildStatusFromRecords, getTodayDateStr } from '../utils/storage';
+import { getHistoryDatesFromServer, getRecordsForDate } from '../utils/api';
 import PersonCard from './PersonCard';
 
 const formatDateKR = (dateStr) => {
@@ -11,20 +12,31 @@ const formatDateKR = (dateStr) => {
   return `${m}월 ${d}일 (${day})`;
 };
 
-const getTodayStr = () => {
-  const today = new Date();
-  const y = today.getFullYear();
-  const m = String(today.getMonth() + 1).padStart(2, '0');
-  const d = String(today.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-};
-
 export default function AttendanceHistory({ onClose }) {
-  const dates = getHistoryDates();
-  const todayStr = getTodayStr();
-  const [selectedDate, setSelectedDate] = useState(dates[0] || '');
+  const todayStr = getTodayDateStr();
+  const [dates, setDates] = useState([]);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [status, setStatus] = useState([]);
+  const [loadingDates, setLoadingDates] = useState(true);
+  const [loadingRecords, setLoadingRecords] = useState(false);
 
-  const status = selectedDate ? getTeamStatusForDate(selectedDate) : [];
+  useEffect(() => {
+    getHistoryDatesFromServer().then((d) => {
+      setDates(d);
+      if (d.length > 0) setSelectedDate(d[0]);
+      setLoadingDates(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    setLoadingRecords(true);
+    getRecordsForDate(selectedDate).then((records) => {
+      setStatus(buildStatusFromRecords(records));
+      setLoadingRecords(false);
+    });
+  }, [selectedDate]);
+
   const checkinCount = status.filter((p) => p.checkin).length;
 
   return (
@@ -41,7 +53,9 @@ export default function AttendanceHistory({ onClose }) {
       </div>
 
       <div className="history-page-body">
-        {dates.length === 0 ? (
+        {loadingDates ? (
+          <p className="empty-msg" style={{ padding: '2rem 0' }}>불러오는 중...</p>
+        ) : dates.length === 0 ? (
           <p className="empty-msg" style={{ padding: '2rem 0' }}>최근 2주간 기록이 없습니다.</p>
         ) : (
           <>
@@ -65,7 +79,9 @@ export default function AttendanceHistory({ onClose }) {
               )}
             </div>
 
-            {status.length === 0 ? (
+            {loadingRecords ? (
+              <p className="empty-msg">불러오는 중...</p>
+            ) : status.length === 0 ? (
               <p className="empty-msg">기록이 없습니다.</p>
             ) : (
               <div className="person-card-list">
