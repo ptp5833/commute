@@ -901,6 +901,167 @@ body {
   background: #e0e0e0;
 }
 
+/* ── History View Tabs ── */
+.history-view-tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 1rem;
+}
+
+.history-view-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 0.6rem 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #999;
+  font-family: inherit;
+  cursor: pointer;
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.15s;
+}
+
+.history-view-tab.active {
+  color: #0078d4;
+  border-bottom-color: #0078d4;
+  font-weight: 700;
+}
+
+/* ── Weekly Summary ── */
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.week-nav-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  flex: 1;
+}
+
+.week-nav-btn {
+  background: none;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0.3rem 0.75rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.15s;
+}
+
+.week-nav-btn:hover {
+  background: #f0f0f0;
+}
+
+.btn-this-week {
+  display: block;
+  margin: 0 auto 0.75rem;
+  background: #e8f3fb;
+  color: #0078d4;
+  border: none;
+  border-radius: 8px;
+  padding: 0.3rem 0.875rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-this-week:hover {
+  background: #cce4f7;
+}
+
+.weekly-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1.5px solid #f0f0f0;
+  border-radius: 12px;
+}
+
+.weekly-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.wt-name-col {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.78rem;
+  color: #aaa;
+  font-weight: 500;
+  border-bottom: 1.5px solid #f0f0f0;
+  position: sticky;
+  left: 0;
+  background: #fff;
+  min-width: 60px;
+}
+
+.wt-day-col {
+  text-align: center;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 500;
+  border-bottom: 1.5px solid #f0f0f0;
+  min-width: 44px;
+}
+
+.wt-day-col.wt-today {
+  color: #0078d4;
+  font-weight: 700;
+  background: #f0f8ff;
+}
+
+.wt-name {
+  padding: 0.6rem 0.75rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  font-size: 0.88rem;
+  border-bottom: 1px solid #f8f8f8;
+  position: sticky;
+  left: 0;
+  background: #fff;
+}
+
+.weekly-table tbody tr:last-child .wt-name,
+.weekly-table tbody tr:last-child .wt-cell {
+  border-bottom: none;
+}
+
+.wt-cell {
+  text-align: center;
+  padding: 0.6rem 0.25rem;
+  font-size: 1rem;
+  border-bottom: 1px solid #f8f8f8;
+  color: #999;
+}
+
+.wt-cell.wt-today {
+  background: #f0f8ff;
+}
+
+.weekly-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 0.875rem;
+  padding: 0.625rem 0.75rem;
+  background: #f8f9fb;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: #666;
+}
+
 /* ── Date Tabs ── */
 .date-tabs {
   display: flex;
