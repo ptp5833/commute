@@ -4,7 +4,7 @@ import LocationSelector from './LocationSelector';
 import TeamStatus from './TeamStatus';
 import AttendanceHistory from './AttendanceHistory';
 import { getUserTodayRecord, saveRecord, getTodayDateStr } from '../utils/storage';
-import { saveRecordToServer } from '../utils/api';
+import { saveRecordToServer, saveSchedule } from '../utils/api';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
 import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage } from '../utils/webhook';
 import { locationOptions } from '../constants';
@@ -23,6 +23,12 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   const [showMovePanel, setShowMovePanel] = useState(false);
   const [moveLocation, setMoveLocation] = useState('');
   const [moveCustom, setMoveCustom] = useState('');
+  const [showSchedulePanel, setShowSchedulePanel] = useState(false);
+  const [scheduleType, setScheduleType] = useState('vacation');
+  const [scheduleSubType, setScheduleSubType] = useState('연차');
+  const [scheduleStartDate, setScheduleStartDate] = useState(getTodayDateStr());
+  const [scheduleEndDate, setScheduleEndDate] = useState(getTodayDateStr());
+  const [scheduleLocation, setScheduleLocation] = useState('');
 
   const { checkin, checkout } = nameConfirmed
     ? getUserTodayRecord(name)
@@ -114,6 +120,36 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       showFlash(`🚗 이동 완료! ${fromLocation} → ${dest}`);
     } catch (err) {
       showFlash(`전송 실패: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getOneMonthLater = () => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + 1);
+    return d.toISOString().split('T')[0];
+  };
+
+  const handleScheduleSave = async () => {
+    if (scheduleEndDate < scheduleStartDate) return showFlash('종료일이 시작일보다 빠릅니다.');
+    if (scheduleType !== 'vacation' && !scheduleLocation.trim()) return showFlash('장소를 입력해주세요.');
+    setLoading(true);
+    try {
+      await saveSchedule({
+        name,
+        type: scheduleType,
+        subType: scheduleType === 'vacation' ? scheduleSubType : null,
+        location: scheduleType !== 'vacation' ? scheduleLocation.trim() : null,
+        startDate: scheduleStartDate,
+        endDate: scheduleEndDate,
+      });
+      setShowSchedulePanel(false);
+      setRefreshKey((k) => k + 1);
+      const label = { vacation: '휴가', business_trip: '출장', field_work: '외근' }[scheduleType];
+      showFlash(`📋 ${label} 일정이 등록되었습니다.`);
+    } catch (err) {
+      showFlash(`등록 실패: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -261,6 +297,104 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                 {loading ? '⏳' : '확인'}
               </button>
               <button className="btn-move-cancel" onClick={() => setShowMovePanel(false)}>
+                취소
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="schedule-btn-wrap">
+          <button
+            className={`btn-schedule${showSchedulePanel ? ' btn-schedule-active' : ''}`}
+            onClick={() => setShowSchedulePanel((v) => !v)}
+          >
+            📋 일정 등록
+          </button>
+        </div>
+
+        {showSchedulePanel && (
+          <div className="schedule-panel">
+            <p className="schedule-panel-title">일정 등록</p>
+
+            <div className="schedule-form-row">
+              <label className="schedule-label">종류</label>
+              <select
+                className="location-select"
+                value={scheduleType}
+                onChange={(e) => setScheduleType(e.target.value)}
+              >
+                <option value="vacation">🌴 휴가</option>
+                <option value="business_trip">✈️ 출장</option>
+                <option value="field_work">🏃 외근</option>
+              </select>
+            </div>
+
+            <div className="schedule-form-row">
+              <label className="schedule-label">시작일</label>
+              <input
+                type="date"
+                className="schedule-date-input"
+                value={scheduleStartDate}
+                min={getTodayDateStr()}
+                max={getOneMonthLater()}
+                onChange={(e) => {
+                  setScheduleStartDate(e.target.value);
+                  if (scheduleEndDate < e.target.value) setScheduleEndDate(e.target.value);
+                }}
+              />
+            </div>
+
+            <div className="schedule-form-row">
+              <label className="schedule-label">종료일</label>
+              <input
+                type="date"
+                className="schedule-date-input"
+                value={scheduleEndDate}
+                min={scheduleStartDate}
+                max={getOneMonthLater()}
+                onChange={(e) => setScheduleEndDate(e.target.value)}
+              />
+            </div>
+
+            {scheduleType === 'vacation' && (
+              <div className="schedule-form-row">
+                <label className="schedule-label">유형</label>
+                <select
+                  className="location-select"
+                  value={scheduleSubType}
+                  onChange={(e) => setScheduleSubType(e.target.value)}
+                >
+                  <option>연차</option>
+                  <option>오전반차</option>
+                  <option>오후반차</option>
+                  <option>오전반반차</option>
+                  <option>오후반반차</option>
+                  <option>리프레쉬</option>
+                  <option>해외문화체험</option>
+                  <option>건강검진</option>
+                </select>
+              </div>
+            )}
+
+            {scheduleType !== 'vacation' && (
+              <div className="schedule-form-row">
+                <label className="schedule-label">장소</label>
+                <input
+                  type="text"
+                  className="custom-input"
+                  value={scheduleLocation}
+                  onChange={(e) => setScheduleLocation(e.target.value)}
+                  placeholder="장소를 입력하세요"
+                  onKeyDown={(e) => e.key === 'Enter' && handleScheduleSave()}
+                />
+              </div>
+            )}
+
+            <div className="move-panel-actions">
+              <button className="btn-move-confirm" onClick={handleScheduleSave} disabled={loading}>
+                {loading ? '⏳' : '등록'}
+              </button>
+              <button className="btn-move-cancel" onClick={() => setShowSchedulePanel(false)}>
                 취소
               </button>
             </div>

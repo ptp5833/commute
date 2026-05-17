@@ -31,3 +31,26 @@ export const getHistoryDatesFromServer = async () => {
     return [];
   }
 };
+
+export const saveSchedule = async (schedule) => {
+  const res = await fetch('/api/schedules', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(schedule),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || '등록 실패');
+  }
+};
+
+export const getSchedulesForDate = async (dateStr) => {
+  try {
+    const res = await fetch(`/api/schedules?date=${dateStr}`);
+    if (!res.ok) return [];
+    const { schedules } = await res.json();
+    return schedules || [];
+  } catch {
+    return [];
+  }
+};
