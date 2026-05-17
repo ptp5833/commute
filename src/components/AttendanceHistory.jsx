@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { buildStatusFromRecords, getTodayDateStr } from '../utils/storage';
 import { getRecordsForDate, getSchedulesForDate } from '../utils/api';
 import PersonCard from './PersonCard';
@@ -10,10 +10,10 @@ const SCHEDULE_CONFIG = {
   vacation:      { icon: '🌴', label: '휴가', color: '#00897b', bg: '#e0f2f1' },
 };
 
-const generateNext14Days = () => {
+const generateDateRange = () => {
   const dates = [];
   const today = new Date();
-  for (let i = 0; i < 14; i++) {
+  for (let i = -14; i <= 14; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     const y = d.getFullYear();
@@ -35,11 +35,16 @@ const formatDateKR = (dateStr) => {
 
 export default function AttendanceHistory({ onClose }) {
   const todayStr = getTodayDateStr();
-  const dates = generateNext14Days();
+  const dates = generateDateRange();
   const [selectedDate, setSelectedDate] = useState(todayStr);
   const [status, setStatus] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(false);
+  const todayTabRef = useRef(null);
+
+  useEffect(() => {
+    todayTabRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -80,6 +85,7 @@ export default function AttendanceHistory({ onClose }) {
           {dates.map((d) => (
             <button
               key={d}
+              ref={d === todayStr ? todayTabRef : null}
               className={`date-tab${selectedDate === d ? ' date-tab-active' : ''}${d === todayStr ? ' date-tab-today' : ''}`}
               onClick={() => setSelectedDate(d)}
             >
