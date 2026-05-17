@@ -448,6 +448,8 @@ body {
 .btn-done {
   background: linear-gradient(135deg, #c8c8c8, #b0b0b0) !important;
   box-shadow: none !important;
+  font-size: 1.05rem;
+  white-space: nowrap;
 }
 
 .btn-attendance:disabled {
