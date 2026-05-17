@@ -4,9 +4,9 @@ import LocationSelector from './LocationSelector';
 import TeamStatus from './TeamStatus';
 import AttendanceHistory from './AttendanceHistory';
 import { getUserTodayRecord, saveRecord, getTodayDateStr } from '../utils/storage';
-import { saveRecordToServer, saveSchedule } from '../utils/api';
+import { saveRecordToServer, saveSchedule, getMySchedules, deleteSchedule } from '../utils/api';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
-import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage, buildScheduleMessage } from '../utils/webhook';
+import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage, buildScheduleMessage, buildScheduleCancelMessage } from '../utils/webhook';
 import { locationOptions } from '../constants';
 import DateRangePicker from './DateRangePicker';
 
@@ -25,11 +25,14 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   const [moveLocation, setMoveLocation] = useState('');
   const [moveCustom, setMoveCustom] = useState('');
   const [showSchedulePanel, setShowSchedulePanel] = useState(false);
+  const [panelTab, setPanelTab] = useState('register');
   const [scheduleType, setScheduleType] = useState('vacation');
   const [scheduleSubType, setScheduleSubType] = useState('연차');
   const [scheduleStartDate, setScheduleStartDate] = useState(getTodayDateStr());
   const [scheduleEndDate, setScheduleEndDate] = useState(getTodayDateStr());
   const [scheduleLocation, setScheduleLocation] = useState('');
+  const [mySchedules, setMySchedules] = useState([]);
+  const [loadingMy, setLoadingMy] = useState(false);
 
   const { checkin, checkout } = nameConfirmed
     ? getUserTodayRecord(name)
@@ -156,6 +159,27 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       showFlash(`등록 실패: ${err.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadMySchedules = async () => {
+    setLoadingMy(true);
+    const schedules = await getMySchedules(name, getTodayDateStr());
+    setMySchedules(schedules);
+    setLoadingMy(false);
+  };
+
+  const handleDeleteSchedule = async (schedule) => {
+    try {
+      await deleteSchedule(schedule.id);
+      const detail = schedule.type === 'vacation' ? schedule.subType : schedule.location;
+      const msg = buildScheduleCancelMessage(name, schedule.type, detail, schedule.startDate, schedule.endDate);
+      await sendAttendance(msg);
+      setMySchedules((prev) => prev.filter((s) => s.id !== schedule.id));
+      setRefreshKey((k) => k + 1);
+      showFlash('일정이 취소되었습니다.');
+    } catch (err) {
+      showFlash(`취소 실패: ${err.message}`);
     }
   };
 
@@ -310,7 +334,11 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
         <div className="schedule-btn-wrap">
           <button
             className={`btn-schedule${showSchedulePanel ? ' btn-schedule-active' : ''}`}
-            onClick={() => setShowSchedulePanel((v) => !v)}
+            onClick={() => {
+              const next = !showSchedulePanel;
+              setShowSchedulePanel(next);
+              if (next) setPanelTab('register');
+            }}
           >
             📋 일정 등록
             <svg
@@ -325,73 +353,127 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
 
         {showSchedulePanel && (
           <div className="schedule-panel">
-            <p className="schedule-panel-title">일정 등록</p>
-
-            <div className="schedule-form-row">
-              <label className="schedule-label">종류</label>
-              <select
-                className="location-select"
-                value={scheduleType}
-                onChange={(e) => setScheduleType(e.target.value)}
+            <div className="panel-tabs">
+              <button
+                className={`panel-tab${panelTab === 'register' ? ' panel-tab-active' : ''}`}
+                onClick={() => setPanelTab('register')}
               >
-                <option value="vacation">🌴 휴가</option>
-                <option value="business_trip">✈️ 출장</option>
-                <option value="field_work">🏃 외근</option>
-                <option value="education">📚 교육</option>
-              </select>
+                새 일정 등록
+              </button>
+              <button
+                className={`panel-tab${panelTab === 'my' ? ' panel-tab-active' : ''}`}
+                onClick={() => { setPanelTab('my'); loadMySchedules(); }}
+              >
+                내 일정
+              </button>
             </div>
 
-            <DateRangePicker
-              startDate={scheduleStartDate}
-              endDate={scheduleEndDate}
-              onChange={(start, end) => { setScheduleStartDate(start); setScheduleEndDate(end); }}
-              minDate={getTodayDateStr()}
-              maxDate={getOneMonthLater()}
-            />
+            {panelTab === 'register' && (
+              <>
+                <div className="schedule-form-row">
+                  <label className="schedule-label">종류</label>
+                  <select
+                    className="location-select"
+                    value={scheduleType}
+                    onChange={(e) => setScheduleType(e.target.value)}
+                  >
+                    <option value="vacation">🌴 휴가</option>
+                    <option value="business_trip">✈️ 출장</option>
+                    <option value="field_work">🏃 외근</option>
+                    <option value="education">📚 교육</option>
+                  </select>
+                </div>
 
-            {scheduleType === 'vacation' && (
-              <div className="schedule-form-row">
-                <label className="schedule-label">유형</label>
-                <select
-                  className="location-select"
-                  value={scheduleSubType}
-                  onChange={(e) => setScheduleSubType(e.target.value)}
-                >
-                  <option>연차</option>
-                  <option>오전반차</option>
-                  <option>오후반차</option>
-                  <option>오전반반차</option>
-                  <option>오후반반차</option>
-                  <option>리프레쉬</option>
-                  <option>해외문화체험</option>
-                  <option>건강검진</option>
-                  <option>교육</option>
-                </select>
-              </div>
-            )}
-
-            {scheduleType !== 'vacation' && (
-              <div className="schedule-form-row">
-                <label className="schedule-label">장소</label>
-                <input
-                  type="text"
-                  className="custom-input"
-                  value={scheduleLocation}
-                  onChange={(e) => setScheduleLocation(e.target.value)}
-                  placeholder={scheduleType === 'education' ? '교육 장소를 입력하세요' : '장소를 입력하세요'}
-                  onKeyDown={(e) => e.key === 'Enter' && handleScheduleSave()}
+                <DateRangePicker
+                  startDate={scheduleStartDate}
+                  endDate={scheduleEndDate}
+                  onChange={(start, end) => { setScheduleStartDate(start); setScheduleEndDate(end); }}
+                  minDate={getTodayDateStr()}
+                  maxDate={getOneMonthLater()}
                 />
-              </div>
+
+                {scheduleType === 'vacation' && (
+                  <div className="schedule-form-row">
+                    <label className="schedule-label">유형</label>
+                    <select
+                      className="location-select"
+                      value={scheduleSubType}
+                      onChange={(e) => setScheduleSubType(e.target.value)}
+                    >
+                      <option>연차</option>
+                      <option>오전반차</option>
+                      <option>오후반차</option>
+                      <option>오전반반차</option>
+                      <option>오후반반차</option>
+                      <option>리프레쉬</option>
+                      <option>해외문화체험</option>
+                      <option>건강검진</option>
+                      <option>교육</option>
+                    </select>
+                  </div>
+                )}
+
+                {scheduleType !== 'vacation' && (
+                  <div className="schedule-form-row">
+                    <label className="schedule-label">장소</label>
+                    <input
+                      type="text"
+                      className="custom-input"
+                      value={scheduleLocation}
+                      onChange={(e) => setScheduleLocation(e.target.value)}
+                      placeholder={scheduleType === 'education' ? '교육 장소를 입력하세요' : '장소를 입력하세요'}
+                      onKeyDown={(e) => e.key === 'Enter' && handleScheduleSave()}
+                    />
+                  </div>
+                )}
+
+                <div className="move-panel-actions">
+                  <button className="btn-move-confirm" onClick={handleScheduleSave} disabled={loading}>
+                    {loading ? '⏳' : '등록'}
+                  </button>
+                  <button className="btn-move-cancel" onClick={() => setShowSchedulePanel(false)}>
+                    닫기
+                  </button>
+                </div>
+              </>
             )}
 
-            <div className="move-panel-actions">
-              <button className="btn-move-confirm" onClick={handleScheduleSave} disabled={loading}>
-                {loading ? '⏳' : '등록'}
-              </button>
-              <button className="btn-move-cancel" onClick={() => setShowSchedulePanel(false)}>
-                취소
-              </button>
-            </div>
+            {panelTab === 'my' && (
+              <>
+                {loadingMy ? (
+                  <p className="empty-msg" style={{ padding: '1rem 0' }}>불러오는 중...</p>
+                ) : mySchedules.length === 0 ? (
+                  <p className="empty-msg" style={{ padding: '1rem 0' }}>등록된 일정이 없습니다.</p>
+                ) : (
+                  <div className="my-schedule-list">
+                    {mySchedules.map((s) => {
+                      const icons = { vacation: '🌴', business_trip: '✈️', field_work: '🏃', education: '📚' };
+                      const labels = { vacation: '휴가', business_trip: '출장', field_work: '외근', education: '교육' };
+                      const detail = s.type === 'vacation' ? s.subType : s.location;
+                      const period = s.startDate === s.endDate ? s.startDate : `${s.startDate} ~ ${s.endDate}`;
+                      return (
+                        <div key={s.id} className="my-schedule-item">
+                          <div className="my-schedule-info">
+                            <span className="my-schedule-type">{icons[s.type]} {labels[s.type]}</span>
+                            {detail && <span className="my-schedule-detail">{detail}</span>}
+                            <span className="my-schedule-period">{period}</span>
+                          </div>
+                          <button
+                            className="btn-my-schedule-cancel"
+                            onClick={() => handleDeleteSchedule(s)}
+                          >
+                            취소
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                <button className="btn-move-cancel" style={{ width: '100%', marginTop: '0.5rem' }} onClick={() => setShowSchedulePanel(false)}>
+                  닫기
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

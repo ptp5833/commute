@@ -54,3 +54,22 @@ export const getSchedulesForDate = async (dateStr) => {
     return [];
   }
 };
+
+export const getMySchedules = async (name, fromDate) => {
+  try {
+    const res = await fetch(`/api/schedules?name=${encodeURIComponent(name)}&from=${fromDate}`);
+    if (!res.ok) return [];
+    const { schedules } = await res.json();
+    return schedules || [];
+  } catch {
+    return [];
+  }
+};
+
+export const deleteSchedule = async (id) => {
+  const res = await fetch(`/api/schedules?id=${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || '삭제 실패');
+  }
+};
