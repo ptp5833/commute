@@ -6,7 +6,7 @@ import AttendanceHistory from './AttendanceHistory';
 import { getUserTodayRecord, saveRecord, getTodayDateStr } from '../utils/storage';
 import { saveRecordToServer, saveSchedule } from '../utils/api';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
-import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage } from '../utils/webhook';
+import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage, buildScheduleMessage } from '../utils/webhook';
 import { locationOptions } from '../constants';
 
 export default function AttendanceForm({ msalName, onLogout, initialNameConfirmed, defaultLocation, onNameConfirmed }) {
@@ -136,6 +136,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
     if (scheduleType !== 'vacation' && !scheduleLocation.trim()) return showFlash('장소를 입력해주세요.');
     setLoading(true);
     try {
+      const detail = scheduleType === 'vacation' ? scheduleSubType : scheduleLocation.trim();
       await saveSchedule({
         name,
         type: scheduleType,
@@ -144,6 +145,8 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
         startDate: scheduleStartDate,
         endDate: scheduleEndDate,
       });
+      const msg = buildScheduleMessage(name, scheduleType, detail, scheduleStartDate, scheduleEndDate);
+      await sendAttendance(msg);
       setShowSchedulePanel(false);
       setRefreshKey((k) => k + 1);
       const label = { vacation: '휴가', business_trip: '출장', field_work: '외근' }[scheduleType];
