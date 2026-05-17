@@ -1,7 +1,27 @@
 import { useState, useEffect } from 'react';
 import { buildStatusFromRecords, getTodayDateStr } from '../utils/storage';
-import { getHistoryDatesFromServer, getRecordsForDate } from '../utils/api';
+import { getRecordsForDate, getSchedulesForDate } from '../utils/api';
 import PersonCard from './PersonCard';
+
+const SCHEDULE_CONFIG = {
+  business_trip: { icon: '✈️', label: '출장', color: '#6a1b9a', bg: '#f3e5f5' },
+  field_work:    { icon: '🏃', label: '외근', color: '#e65100', bg: '#fff3e0' },
+  vacation:      { icon: '🌴', label: '휴가', color: '#00897b', bg: '#e0f2f1' },
+};
+
+const generateNext14Days = () => {
+  const dates = [];
+  const today = new Date();
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    dates.push(`${y}-${m}-${day}`);
+  }
+  return dates;
+};
 
 const formatDateKR = (dateStr) => {
   const date = new Date(dateStr + 'T00:00:00');
@@ -14,30 +34,31 @@ const formatDateKR = (dateStr) => {
 
 export default function AttendanceHistory({ onClose }) {
   const todayStr = getTodayDateStr();
-  const [dates, setDates] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('');
+  const dates = generateNext14Days();
+  const [selectedDate, setSelectedDate] = useState(todayStr);
   const [status, setStatus] = useState([]);
-  const [loadingDates, setLoadingDates] = useState(true);
-  const [loadingRecords, setLoadingRecords] = useState(false);
+  const [schedules, setSchedules] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    getHistoryDatesFromServer().then((d) => {
-      setDates(d);
-      if (d.length > 0) setSelectedDate(d[0]);
-      setLoadingDates(false);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!selectedDate) return;
-    setLoadingRecords(true);
-    getRecordsForDate(selectedDate).then((records) => {
+    setLoading(true);
+    Promise.all([
+      getRecordsForDate(selectedDate),
+      getSchedulesForDate(selectedDate),
+    ]).then(([records, scheds]) => {
       setStatus(buildStatusFromRecords(records));
-      setLoadingRecords(false);
+      setSchedules(scheds);
+      setLoading(false);
     });
   }, [selectedDate]);
 
   const checkinCount = status.filter((p) => p.checkin).length;
+  const grouped = {
+    business_trip: schedules.filter((s) => s.type === 'business_trip'),
+    field_work: schedules.filter((s) => s.type === 'field_work'),
+    vacation: schedules.filter((s) => s.type === 'vacation'),
+  };
+  const hasAny = status.length > 0 || schedules.length > 0;
 
   return (
     <div className="history-page">
@@ -53,43 +74,63 @@ export default function AttendanceHistory({ onClose }) {
       </div>
 
       <div className="history-page-body">
-        {loadingDates ? (
-          <p className="empty-msg" style={{ padding: '2rem 0' }}>불러오는 중...</p>
-        ) : dates.length === 0 ? (
-          <p className="empty-msg" style={{ padding: '2rem 0' }}>최근 2주간 기록이 없습니다.</p>
+        <div className="date-tabs">
+          {dates.map((d) => (
+            <button
+              key={d}
+              className={`date-tab${selectedDate === d ? ' date-tab-active' : ''}${d === todayStr ? ' date-tab-today' : ''}`}
+              onClick={() => setSelectedDate(d)}
+            >
+              {d === todayStr ? '오늘' : formatDateKR(d)}
+            </button>
+          ))}
+        </div>
+
+        <div className="history-date-label">
+          {selectedDate && formatDateKR(selectedDate)}
+          {selectedDate === todayStr && <span className="today-badge">오늘</span>}
+          {checkinCount > 0 && (
+            <span className="checkin-count" style={{ marginLeft: 'auto' }}>{checkinCount}명 출근</span>
+          )}
+        </div>
+
+        {loading ? (
+          <p className="empty-msg">불러오는 중...</p>
+        ) : !hasAny ? (
+          <p className="empty-msg">기록이 없습니다.</p>
         ) : (
           <>
-            <div className="date-tabs">
-              {dates.map((d) => (
-                <button
-                  key={d}
-                  className={`date-tab${selectedDate === d ? ' date-tab-active' : ''}${d === todayStr ? ' date-tab-today' : ''}`}
-                  onClick={() => setSelectedDate(d)}
-                >
-                  {d === todayStr ? '오늘' : formatDateKR(d)}
-                </button>
-              ))}
-            </div>
-
-            <div className="history-date-label">
-              {selectedDate && formatDateKR(selectedDate)}
-              {selectedDate === todayStr && <span className="today-badge">오늘</span>}
-              {checkinCount > 0 && (
-                <span className="checkin-count" style={{ marginLeft: 'auto' }}>{checkinCount}명 출근</span>
-              )}
-            </div>
-
-            {loadingRecords ? (
-              <p className="empty-msg">불러오는 중...</p>
-            ) : status.length === 0 ? (
-              <p className="empty-msg">기록이 없습니다.</p>
-            ) : (
+            {status.length > 0 && (
               <div className="person-card-list">
                 {status.map((person) => (
                   <PersonCard key={person.name} person={person} />
                 ))}
               </div>
             )}
+
+            {['business_trip', 'field_work', 'vacation'].map((type) => {
+              const items = grouped[type];
+              if (items.length === 0) return null;
+              const { icon, label, color, bg } = SCHEDULE_CONFIG[type];
+              return (
+                <div key={type} className="schedule-section">
+                  <div className="schedule-section-header" style={{ color, background: bg }}>
+                    <span>{icon} {label}</span>
+                    <span>{items.length}명</span>
+                  </div>
+                  <div className="schedule-list">
+                    {items.map((s, i) => (
+                      <div key={i} className="schedule-item">
+                        <span className="schedule-name">{s.name}</span>
+                        <span className="schedule-detail">
+                          {s.type === 'vacation' ? s.subType : s.location}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </>
         )}
       </div>
