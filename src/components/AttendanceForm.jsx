@@ -33,6 +33,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   const [scheduleLocation, setScheduleLocation] = useState('');
   const [mySchedules, setMySchedules] = useState([]);
   const [loadingMy, setLoadingMy] = useState(false);
+  const [cancelingId, setCancelingId] = useState(null);
 
   const { checkin, checkout } = nameConfirmed
     ? getUserTodayRecord(name)
@@ -164,6 +165,8 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   };
 
   const handleDeleteSchedule = async (schedule) => {
+    if (cancelingId === schedule.id) return;
+    setCancelingId(schedule.id);
     try {
       await deleteSchedule(schedule.id);
       const detail = schedule.type === 'vacation' ? schedule.subType : schedule.location;
@@ -174,6 +177,8 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
       showFlash('일정이 취소되었습니다.');
     } catch (err) {
       showFlash(`취소 실패: ${err.message}`);
+    } finally {
+      setCancelingId(null);
     }
   };
 
@@ -453,8 +458,9 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                           <button
                             className="btn-my-schedule-cancel"
                             onClick={() => handleDeleteSchedule(s)}
+                            disabled={cancelingId === s.id}
                           >
-                            취소
+                            {cancelingId === s.id ? '취소 중...' : '취소'}
                           </button>
                         </div>
                       );

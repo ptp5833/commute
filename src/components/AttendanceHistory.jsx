@@ -56,7 +56,7 @@ const getWeekDates = (weekOffset = 0) => {
 
 export default function AttendanceHistory() {
   const todayStr = getTodayDateStr();
-  const [viewMode, setViewMode] = useState('weekly');
+  const [viewMode, setViewMode] = useState('daily');
 
   // daily state
   const dates = generateDateRange();
@@ -143,7 +143,21 @@ export default function AttendanceHistory() {
     <div className="history-page">
       <div className="history-page-header">
         <div style={{ width: 40 }} />
-        <h2>근태 History</h2>
+        <h2>
+          근태 History
+          <button
+            className="btn-today-jump"
+            onClick={() => {
+              setViewMode('daily');
+              setSelectedDate(todayStr);
+              setTimeout(() => {
+                todayTabRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+              }, 50);
+            }}
+          >
+            오늘
+          </button>
+        </h2>
         <button className="btn-close-page" onClick={() => window.history.back()}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -156,16 +170,16 @@ export default function AttendanceHistory() {
         {/* 뷰 모드 탭 */}
         <div className="history-view-tabs">
           <button
-            className={`history-view-tab${viewMode === 'weekly' ? ' active' : ''}`}
-            onClick={() => setViewMode('weekly')}
-          >
-            주간 요약
-          </button>
-          <button
             className={`history-view-tab${viewMode === 'daily' ? ' active' : ''}`}
             onClick={() => setViewMode('daily')}
           >
             일별 상세
+          </button>
+          <button
+            className={`history-view-tab${viewMode === 'weekly' ? ' active' : ''}`}
+            onClick={() => setViewMode('weekly')}
+          >
+            주간 요약
           </button>
         </div>
 
