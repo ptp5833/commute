@@ -129,12 +129,6 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
     }
   };
 
-  const getOneMonthLater = () => {
-    const d = new Date();
-    d.setMonth(d.getMonth() + 1);
-    return d.toISOString().split('T')[0];
-  };
-
   const handleScheduleSave = async () => {
     if (scheduleEndDate < scheduleStartDate) return showFlash('종료일이 시작일보다 빠릅니다.');
     if (scheduleType !== 'vacation' && !scheduleLocation.trim()) return showFlash('장소를 입력해주세요.');
@@ -388,8 +382,6 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                   startDate={scheduleStartDate}
                   endDate={scheduleEndDate}
                   onChange={(start, end) => { setScheduleStartDate(start); setScheduleEndDate(end); }}
-                  minDate={getTodayDateStr()}
-                  maxDate={getOneMonthLater()}
                 />
 
                 {scheduleType === 'vacation' && (
