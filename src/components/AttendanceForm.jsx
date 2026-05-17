@@ -8,6 +8,7 @@ import { saveRecordToServer, saveSchedule } from '../utils/api';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
 import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage, buildScheduleMessage } from '../utils/webhook';
 import { locationOptions } from '../constants';
+import DateRangePicker from './DateRangePicker';
 
 export default function AttendanceForm({ msalName, onLogout, initialNameConfirmed, defaultLocation, onNameConfirmed }) {
   const isKnownName = msalName in defaultLocations || !!initialNameConfirmed;
@@ -339,32 +340,13 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
               </select>
             </div>
 
-            <div className="schedule-form-row">
-              <label className="schedule-label">시작일</label>
-              <input
-                type="date"
-                className="schedule-date-input"
-                value={scheduleStartDate}
-                min={getTodayDateStr()}
-                max={getOneMonthLater()}
-                onChange={(e) => {
-                  setScheduleStartDate(e.target.value);
-                  if (scheduleEndDate < e.target.value) setScheduleEndDate(e.target.value);
-                }}
-              />
-            </div>
-
-            <div className="schedule-form-row">
-              <label className="schedule-label">종료일</label>
-              <input
-                type="date"
-                className="schedule-date-input"
-                value={scheduleEndDate}
-                min={scheduleStartDate}
-                max={getOneMonthLater()}
-                onChange={(e) => setScheduleEndDate(e.target.value)}
-              />
-            </div>
+            <DateRangePicker
+              startDate={scheduleStartDate}
+              endDate={scheduleEndDate}
+              onChange={(start, end) => { setScheduleStartDate(start); setScheduleEndDate(end); }}
+              minDate={getTodayDateStr()}
+              maxDate={getOneMonthLater()}
+            />
 
             {scheduleType === 'vacation' && (
               <div className="schedule-form-row">

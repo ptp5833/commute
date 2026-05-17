@@ -1039,20 +1039,136 @@ body {
   font-weight: 500;
 }
 
-.schedule-date-input {
-  border: 1.5px solid #ddd;
-  border-radius: 8px;
-  padding: 0.5rem 0.625rem;
-  font-size: 0.9rem;
-  font-family: inherit;
+/* ── Date Range Picker ── */
+.drp-wrap {
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 0.75rem;
   background: #fff;
-  flex: 1;
-  outline: none;
-  transition: border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.schedule-date-input:focus {
-  border-color: #0078d4;
+.drp-hint {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #0078d4;
+  text-align: center;
+}
+
+.drp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.1rem 0;
+}
+
+.drp-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.drp-nav {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #555;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.drp-nav:hover {
+  background: #f0f0f0;
+}
+
+.drp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+}
+
+.drp-weekday {
+  font-size: 0.72rem;
+  color: #999;
+  font-weight: 500;
+  padding: 0.2rem 0;
+}
+
+.drp-weekday.drp-sun { color: #e53935; }
+.drp-weekday.drp-sat { color: #1e88e5; }
+
+.drp-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.drp-day {
+  aspect-ratio: 1;
+  border: none;
+  background: none;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+  color: #1a1a2e;
+  width: 100%;
+}
+
+.drp-day:hover:not(:disabled) {
+  background: #e8f3fb;
+}
+
+.drp-day.drp-today {
+  font-weight: 700;
+  color: #0078d4;
+}
+
+.drp-day.drp-sun { color: #e53935; }
+.drp-day.drp-sat { color: #1e88e5; }
+
+.drp-day.drp-selected {
+  background: #0078d4 !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+
+.drp-day.drp-in-range {
+  background: #e8f3fb;
+  border-radius: 0;
+  color: #1a1a2e;
+}
+
+.drp-day.drp-range-start {
+  border-radius: 50% 0 0 50%;
+}
+
+.drp-day.drp-range-end {
+  border-radius: 0 50% 50% 0;
+}
+
+.drp-day.drp-disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.drp-result {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 0.4rem 0.5rem;
 }
 
 /* ── Schedule Sections in TeamStatus ── */
