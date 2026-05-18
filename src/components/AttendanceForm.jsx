@@ -101,9 +101,11 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   };
 
   const openMovePanel = () => {
-    setMoveLocation(location);
-    setMoveCustom('');
-    setShowMovePanel(true);
+    if (!showMovePanel) {
+      setMoveLocation(location);
+      setMoveCustom('');
+    }
+    setShowMovePanel((v) => !v);
   };
 
   const handleMove = async () => {
@@ -281,11 +283,18 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
             {loading && !checkin ? '⏳' : checkin ? '✅ 출근완료' : '출근'}
           </button>
           <button
-            className="btn-attendance btn-move"
+            className={`btn-attendance btn-move${showMovePanel ? ' btn-move-active' : ''}`}
             onClick={openMovePanel}
             disabled={loading || !checkin}
           >
             🚗 이동
+            <svg
+              className={`move-chevron${showMovePanel ? ' move-chevron-open' : ''}`}
+              width="12" height="12" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
           </button>
           <button
             className={`btn-attendance btn-checkout${checkout ? ' btn-done' : ''}`}

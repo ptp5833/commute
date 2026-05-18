@@ -10,14 +10,22 @@ const SCHEDULE_CONFIG = {
   vacation:      { icon: '🌴', label: '휴가', color: '#00897b', bg: '#e0f2f1' },
 };
 
+const POLL_INTERVAL_MS = 5_000;
+
 export default function TeamStatus({ refreshKey }) {
   const [status, setStatus] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const today = getTodayDateStr();
 
-  useEffect(() => {
+  const fetchData = () => {
     getRecordsForDate(today).then((records) => setStatus(buildStatusFromRecords(records)));
     getSchedulesForDate(today).then(setSchedules);
+  };
+
+  useEffect(() => {
+    fetchData();
+    const timer = setInterval(fetchData, POLL_INTERVAL_MS);
+    return () => clearInterval(timer);
   }, [refreshKey]);
 
   const checkinCount = status.filter((p) => p.checkin).length;
