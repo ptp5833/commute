@@ -280,7 +280,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
             onClick={handleCheckin}
             disabled={loading || !!checkin}
           >
-            {loading && !checkin ? '⏳' : checkin ? '✅ 출근완료' : '출근'}
+            {loading && !checkin ? '⏳' : checkin ? <><span className="btn-done-icon">✅</span> 출근완료</> : '출근'}
           </button>
           <button
             className={`btn-attendance btn-move${showMovePanel ? ' btn-move-active' : ''}`}
@@ -301,7 +301,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
             onClick={handleCheckout}
             disabled={loading || !checkin || !!checkout}
           >
-            {loading && checkin && !checkout ? '⏳' : checkout ? '🏁 퇴근완료' : '퇴근'}
+            {loading && checkin && !checkout ? '⏳' : checkout ? <><span className="btn-done-icon">🏁</span> 퇴근완료</> : '퇴근'}
           </button>
         </div>
 

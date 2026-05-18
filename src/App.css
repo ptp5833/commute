@@ -468,10 +468,16 @@ body {
 .btn-done {
   background: linear-gradient(135deg, #c8c8c8, #b0b0b0) !important;
   box-shadow: none !important;
-  font-size: clamp(0.5rem, 2.6vw, 0.85rem);
+  font-size: clamp(0.75rem, 2.8vw, 0.9rem) !important;
   white-space: nowrap;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: 0.4rem !important;
+  padding-right: 0.4rem !important;
+}
+
+.btn-done-icon {
+  font-size: 0.78em;
+  vertical-align: -0.05em;
+  display: inline-block;
 }
 
 .btn-attendance:disabled {
@@ -814,15 +820,19 @@ body {
     border-radius: 14px;
   }
 
+  .button-group {
+    gap: 0.5rem;
+  }
+
   .btn-attendance {
     font-size: 1.2rem;
-    padding: 1.25rem 0.75rem;
+    padding: 1.25rem 0.6rem;
     border-radius: 12px;
   }
 
   .btn-move {
-    font-size: 0.9rem;
-    padding: 1.25rem 0.5rem;
+    font-size: 0.85rem;
+    padding: 1.25rem 0.4rem;
   }
 
   .status-table {
