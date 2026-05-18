@@ -269,7 +269,7 @@ body {
 .location-select {
   border: 1.5px solid #ddd;
   border-radius: 8px;
-  padding: 0.5rem 1.75rem 0.5rem 0.625rem;
+  padding: 0.5rem 2.25rem 0.5rem 0.625rem;
   font-size: 0.9rem;
   font-family: inherit;
   background: #fff;
@@ -468,7 +468,7 @@ body {
 .btn-done {
   background: linear-gradient(135deg, #c8c8c8, #b0b0b0) !important;
   box-shadow: none !important;
-  font-size: clamp(0.75rem, 2.8vw, 0.9rem) !important;
+  font-size: 1rem !important;
   white-space: nowrap;
   padding-left: 0.4rem !important;
   padding-right: 0.4rem !important;
@@ -841,6 +841,10 @@ body {
   .btn-move {
     font-size: 0.85rem;
     padding: 1.25rem 0.4rem;
+  }
+
+  .btn-done {
+    font-size: 0.85rem !important;
   }
 
   .status-table {
