@@ -454,8 +454,11 @@ body {
 }
 
 .move-chevron {
+  width: 1.1em;
+  height: 1.1em;
   transition: transform 0.2s ease;
   flex-shrink: 0;
+  display: block;
 }
 
 .move-chevron-open {
@@ -465,7 +468,7 @@ body {
 .btn-done {
   background: linear-gradient(135deg, #c8c8c8, #b0b0b0) !important;
   box-shadow: none !important;
-  font-size: clamp(0.6rem, 3.2vw, 1.05rem);
+  font-size: clamp(0.5rem, 2.6vw, 0.85rem);
   white-space: nowrap;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
