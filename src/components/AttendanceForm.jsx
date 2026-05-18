@@ -22,6 +22,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   const [refreshKey, setRefreshKey] = useState(0);
   const [showHistory, setShowHistory] = useState(false);
   const [showMovePanel, setShowMovePanel] = useState(false);
+  const [movePanelExpanded, setMovePanelExpanded] = useState(true);
   const [moveLocation, setMoveLocation] = useState('');
   const [moveCustom, setMoveCustom] = useState('');
   const [showSchedulePanel, setShowSchedulePanel] = useState(false);
@@ -104,6 +105,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
     if (!showMovePanel) {
       setMoveLocation(location);
       setMoveCustom('');
+      setMovePanelExpanded(true);
     }
     setShowMovePanel((v) => !v);
   };
@@ -307,7 +309,18 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
 
         {showMovePanel && (
           <div className="move-panel">
-            <p className="move-panel-label">이동할 지역 선택</p>
+            <div className="move-panel-header" onClick={() => setMovePanelExpanded((v) => !v)}>
+              <span className="move-panel-label">이동할 지역 선택</span>
+              <svg
+                className={`schedule-chevron${movePanelExpanded ? ' schedule-chevron-open' : ''}`}
+                width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              >
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+            {movePanelExpanded && (
+              <>
             <select
               value={moveLocation}
               onChange={(e) => setMoveLocation(e.target.value)}
@@ -333,9 +346,11 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                 {loading ? '⏳' : '확인'}
               </button>
               <button className="btn-move-cancel" onClick={() => setShowMovePanel(false)}>
-                취소
+                닫기
               </button>
             </div>
+              </>
+            )}
           </div>
         )}
 

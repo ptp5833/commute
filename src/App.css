@@ -764,6 +764,14 @@ body {
   animation: fadeIn 0.2s ease;
 }
 
+.move-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
 .move-panel-label {
   font-size: 0.85rem;
   font-weight: 600;
