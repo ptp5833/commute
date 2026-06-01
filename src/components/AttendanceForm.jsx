@@ -3,7 +3,7 @@ import { defaultLocations } from '../constants';
 import LocationSelector from './LocationSelector';
 import TeamStatus from './TeamStatus';
 import AttendanceHistory from './AttendanceHistory';
-import { getUserTodayRecord, saveRecord, getTodayDateStr } from '../utils/storage';
+import { getUserTodayRecord, getUserCurrentLocation, saveRecord, getTodayDateStr } from '../utils/storage';
 import { saveRecordToServer, saveSchedule, getMySchedules, deleteSchedule } from '../utils/api';
 import { getCurrentTime, calcWorkTime } from '../utils/timeUtils';
 import { sendAttendance, buildCheckinMessage, buildCheckoutMessage, buildMoveMessage, buildScheduleMessage, buildScheduleCancelMessage } from '../utils/webhook';
@@ -15,7 +15,10 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
 
   const [name, setName] = useState(isKnownName ? msalName : '');
   const [nameConfirmed, setNameConfirmed] = useState(isKnownName);
-  const [location, setLocation] = useState(defaultLocation || defaultLocations[msalName] || '2판연');
+  // 오늘 이동 기록이 있으면 마지막 위치로 복원(새로고침/재마운트 시 기본지역으로 리셋되는 문제 방지)
+  const [location, setLocation] = useState(
+    () => getUserCurrentLocation(isKnownName ? msalName : '') || defaultLocation || defaultLocations[msalName] || '2판연'
+  );
   const [nameInput, setNameInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [flashMsg, setFlashMsg] = useState('');

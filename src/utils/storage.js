@@ -30,6 +30,18 @@ export const getUserTodayRecord = (name) => {
   return { checkin, checkout };
 };
 
+// 오늘 기록 중 해당 사용자의 가장 마지막 위치(이동/출근 반영)를 반환.
+// 앱 재마운트/새로고침 후에도 현재 지역을 복원하기 위함.
+export const getUserCurrentLocation = (name) => {
+  if (!name) return undefined;
+  const records = getTodayRecords();
+  let location;
+  for (const r of records) {
+    if (r.name === name && r.location) location = r.location;
+  }
+  return location;
+};
+
 export const buildStatusFromRecords = (records) => {
   const statusMap = {};
   for (const record of records) {
