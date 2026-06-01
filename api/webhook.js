@@ -21,20 +21,11 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Webhook URL not configured' });
   }
 
-  // 이 Teams 워크플로 웹후크는 요청 본문 자체를 Adaptive Card로 취급한다.
-  // (message/attachments 래퍼로 보내면 "Attachments is null" 분기로 빠져
-  //  InvalidBotAdaptiveCard - Property 'type' must be 'AdaptiveCard' 오류 발생)
+  // 워크플로가 "채팅 또는 채널에 메시지 게시" 액션으로 triggerBody()?['text']를
+  // 텍스트 메시지로 게시한다. 텍스트 메시지여야 모바일 푸시에 내용이 노출됨
+  // (Adaptive Card는 푸시에 "워크플로님이 게시했습니다"로만 표시됨).
   const payload = {
-    $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
-    type: 'AdaptiveCard',
-    version: '1.4',
-    body: [
-      {
-        type: 'TextBlock',
-        text: message,
-        wrap: true,
-      },
-    ],
+    text: message,
   };
 
   try {
