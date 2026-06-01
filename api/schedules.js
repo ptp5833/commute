@@ -20,6 +20,25 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'POST') {
     const s = req.body;
+
+    // 중복 방지: 동일 일정(이름·종류·기간 일치)이 이미 있으면 재삽입하지 않음.
+    // 더블 탭/중복 제출로 같은 일정이 여러 건 쌓이는 것을 서버에서 차단(멱등성).
+    const dupRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/schedules?name=eq.${encodeURIComponent(s.name)}` +
+        `&type=eq.${encodeURIComponent(s.type)}` +
+        `&start_date=eq.${s.startDate}&end_date=eq.${s.endDate}`,
+      { headers }
+    );
+    if (dupRes.ok) {
+      const existing = await dupRes.json();
+      const dup = existing.some(
+        (e) => (e.sub_type || null) === (s.subType || null) && (e.location || null) === (s.location || null)
+      );
+      if (dup) {
+        return res.status(200).json({ success: true, deduped: true });
+      }
+    }
+
     const response = await fetch(`${SUPABASE_URL}/rest/v1/schedules`, {
       method: 'POST',
       headers: { ...headers, Prefer: 'return=minimal' },

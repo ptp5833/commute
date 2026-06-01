@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { defaultLocations } from '../constants';
 import LocationSelector from './LocationSelector';
 import TeamStatus from './TeamStatus';
@@ -38,6 +38,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   const [mySchedules, setMySchedules] = useState([]);
   const [loadingMy, setLoadingMy] = useState(false);
   const [cancelingId, setCancelingId] = useState(null);
+  const submittingRef = useRef(false); // 더블 탭 중복 제출 방지(disabled보다 즉시 적용)
 
   const { checkin, checkout } = nameConfirmed
     ? getUserTodayRecord(name)
@@ -140,6 +141,8 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
   const handleScheduleSave = async () => {
     if (scheduleEndDate < scheduleStartDate) return showFlash('종료일이 시작일보다 빠릅니다.');
     if (scheduleType !== 'vacation' && !scheduleLocation.trim()) return showFlash('장소를 입력해주세요.');
+    if (submittingRef.current) return; // 이미 등록 진행 중이면 무시(중복 제출 차단)
+    submittingRef.current = true;
     setLoading(true);
     try {
       const detail = scheduleType === 'vacation' ? scheduleSubType : scheduleLocation.trim();
@@ -160,6 +163,7 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
     } catch (err) {
       showFlash(`등록 실패: ${err.message}`);
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };
