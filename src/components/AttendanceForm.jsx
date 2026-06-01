@@ -432,7 +432,6 @@ export default function AttendanceForm({ msalName, onLogout, initialNameConfirme
                       <option>리프레쉬</option>
                       <option>해외문화체험</option>
                       <option>건강검진</option>
-                      <option>교육</option>
                     </select>
                   </div>
                 )}
