@@ -1,8 +1,5 @@
 {
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ],
-  "crons": [
-    { "path": "/api/cron-missing-checkout", "schedule": "0 0 * * 1-5" }
   ]
 }
